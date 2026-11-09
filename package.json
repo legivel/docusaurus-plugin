@@ -1,6 +1,6 @@
 {
   "name": "docusaurus-plugin-legivel",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Export a Docusaurus site to one PDF through legivel at build time.",
   "license": "MIT",
   "homepage": "https://legivel.com/docs/integrations/docusaurus",
