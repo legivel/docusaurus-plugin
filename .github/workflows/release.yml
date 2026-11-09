@@ -1,8 +1,8 @@
 # Publishes docusaurus-plugin-legivel to npm when a version tag is pushed.
-# The tag must equal "v" + the version in package.json. npm provenance links the package to this run, so the
-# repository must be public before the first publish. The token lives in the
-# repository secret NPM_TOKEN (an npm automation token) and is given only to
-# the publish step.
+# The tag must equal "v" + the version in package.json. npm trusted publishing
+# accepts this workflow through OIDC (id-token: write), so no npm token exists;
+# the package's trusted publisher on npmjs.com must name this repository and
+# release.yml. Trusted publishing needs npm 11.5.1 or newer and adds provenance.
 name: release
 
 on:
@@ -46,7 +46,7 @@ jobs:
       - run: bun test
       - run: bun run build
 
-      - name: Publish with provenance
-        run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm install --global npm@11.6.2
+
+      - name: Publish through trusted publishing
+        run: npm publish --access public
