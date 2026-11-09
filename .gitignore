@@ -1,0 +1,11 @@
+node_modules
+dist
+matrix/old/node_modules
+matrix/old/plugin
+matrix/old/sites
+matrix/old/package-lock.json
+matrix/sites
+e2e/.out
+e2e/.generated
+e2e/site/build
+e2e/site/.docusaurus

@@ -1,0 +1,25 @@
+---
+title: Run a survey
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+A survey walks the transect at dawn. The logger prints the codes listed in [Status codes](../reference/codes.md). Uploads follow [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110).
+
+## Pick the route
+
+<Tabs>
+  <TabItem value="summer" label="Summer route">Start at the north gate and walk the ridge.</TabItem>
+  <TabItem value="winter" label="Winter route">Start at the boathouse and keep to the shore path.</TabItem>
+</Tabs>
+
+:::warning Check the radio
+Test the radio at the gate before you walk out.
+:::
+
+```bash title="survey-start.sh"
+kestrel-log start --transect north --interval 30s
+```
+
+![Station map](/img/station.png)

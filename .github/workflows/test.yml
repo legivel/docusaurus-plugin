@@ -1,0 +1,25 @@
+# The type check and the unit tests on every push to main and every pull
+# request. The end-to-end test (e2e/) needs a legivel API key, so it runs by
+# hand: `bun run test:e2e` (see the README).
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+      - run: bun install --frozen-lockfile
+      - run: bun run typecheck
+      - run: bun run test

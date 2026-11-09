@@ -1,0 +1,57 @@
+{
+  "name": "docusaurus-plugin-legivel",
+  "version": "0.1.0",
+  "description": "Export a Docusaurus site to one PDF through legivel at build time.",
+  "license": "MIT",
+  "homepage": "https://legivel.com/docs/integrations/docusaurus",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/legivel/docusaurus-plugin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/legivel/docusaurus-plugin/issues"
+  },
+  "keywords": [
+    "docusaurus",
+    "docusaurus-plugin",
+    "pdf",
+    "markdown",
+    "documentation",
+    "legivel"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "bun test",
+    "prepublishOnly": "tsc -p tsconfig.json",
+    "test:e2e": "bun test ./e2e/plugin.e2e.ts --timeout 900000",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.e2e.json"
+  },
+  "peerDependencies": {
+    "@docusaurus/core": "^3.0.0",
+    "@docusaurus/plugin-content-docs": "^3.0.0"
+  },
+  "devDependencies": {
+    "@docusaurus/core": "3.10.2",
+    "@docusaurus/plugin-content-docs": "3.10.2",
+    "@docusaurus/preset-classic": "3.10.2",
+    "@docusaurus/types": "3.10.2",
+    "@types/bun": "1.4.0",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "pdfjs-dist": "6.4.299",
+    "react": "^19",
+    "react-dom": "^19",
+    "typescript": "^5.6"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}
