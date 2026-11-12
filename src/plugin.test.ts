@@ -592,6 +592,47 @@ describe("the render call", () => {
     expect(waits).toEqual([]);
   });
 
+  test("a key the API no longer matches to its first render (422 idempotency_mismatch) goes again once without the key", async () => {
+    const seen: (string | null)[] = [];
+    const waits: number[] = [];
+    const fetchImpl = (async (_url: string | URL | Request, i?: RequestInit) => {
+      const headers = new Headers(i?.headers);
+      seen.push(headers.get("idempotency-key"));
+      if (headers.get("idempotency-key")) return Response.json({ code: "idempotency_mismatch", error: "This key was already used for different document or resource content." }, { status: 422 });
+      return new Response(new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31]), { status: 200, headers: { "x-legivel-pages": "1" } });
+    }) as typeof fetch;
+    const result = await render(input, "lgvl_k", "https://api.legivel.com", fetchImpl, async (ms) => void waits.push(ms), true);
+    expect(result.pages).toBe(1);
+    expect(result.replayed).toBe(false);
+    expect(seen).toHaveLength(2);
+    expect(seen[0]).toMatch(/^[0-9a-f]{64}$/);
+    expect(seen[1]).toBeNull();
+    expect(waits).toEqual([]);
+  });
+
+  test("the request without the key is the last: a second 422 fails the build with the API's sentence, and another 422 code is never sent again", async () => {
+    let calls = 0;
+    const stubborn = (async () => {
+      calls++;
+      return Response.json({ code: "idempotency_mismatch", error: "This key was already used for different document or resource content." }, { status: 422 });
+    }) as typeof fetch;
+    const error = await render(input, "lgvl_k", "https://api.legivel.com", stubborn, async () => {}, true).catch((e) => e);
+    expect(error).toBeInstanceOf(RenderError);
+    expect(error.code).toBe("idempotency_mismatch");
+    expect(error.status).toBe(422);
+    expect(calls).toBe(2);
+
+    calls = 0;
+    const other = (async () => {
+      calls++;
+      return Response.json({ code: "too_many_pages", error: "The document has more pages than the plan allows." }, { status: 422 });
+    }) as typeof fetch;
+    const refused = await render(input, "lgvl_k", "https://api.legivel.com", other, async () => {}, true).catch((e) => e);
+    expect(refused).toBeInstanceOf(RenderError);
+    expect(refused.code).toBe("too_many_pages");
+    expect(calls).toBe(1);
+  });
+
   test("every request carries a timeout, and the sent body's hash as its Idempotency-Key when asked", async () => {
     let init: RequestInit | undefined;
     const fetchImpl = (async (_url: string | URL | Request, i?: RequestInit) => {

@@ -101,7 +101,7 @@ A failure stops the build with the API's own sentence and code, for example:
 docusaurus-plugin-legivel: legivel answered 401 unauthorized: The API key is missing or not valid. Send it as "Authorization: Bearer <key>". Check the key in the environment variable; it starts with lgvl_ and is shown once on the API keys page.
 ```
 
-The key never appears in the log, in an error or in the output. A busy service (429, 502, 503, 504) is tried again after the pause it names, a minute at most, up to five times; a request that gets no answer within three minutes fails the build rather than hanging it. Every render carries the hash of its request as its `Idempotency-Key`, so a repeat of the same document spends nothing; once a key's replays are used up (two per key on Free), the request goes again without the key and spends one document.
+The key never appears in the log, in an error or in the output. A busy service (429, 502, 503, 504) is tried again after the pause it names, a minute at most, up to five times; a request that gets no answer within three minutes fails the build rather than hanging it. Every render carries the hash of its request as its `Idempotency-Key`, so a repeat of the same document spends nothing; once a key's replays are used up (two per key on Free), or the API no longer matches the key to its first render (an image loaded from a URL has changed since, for example), the request goes again without the key and spends one document.
 
 ## Requirements
 

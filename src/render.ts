@@ -143,12 +143,23 @@ const RETRY_STATUSES = [429, 502, 503, 504];
  *  the PDF: a fresh CI build of an unchanged site on Free hit it on the fourth
  *  build (review of 22 Oct). */
 export const REPLAY_LIMIT_CODE = "idempotency_replay_limit";
+/** The 422 the same cure fits. The key is the hash of the body, so the body
+ *  under it never differs; the API answers this when what it kept of the
+ *  first render no longer matches the request: an image the document loads
+ *  from a URL has changed since, or a service update changed what it keeps.
+ *  Sending the same key again would get the same answer until the key
+ *  expires, so the request goes again at once without it, as a fresh render
+ *  that spends a document. */
+export const MISMATCH_CODE = "idempotency_mismatch";
 
-async function replayLimitReached(response: Response): Promise<boolean> {
-  if (response.status !== 429) return false;
+/** The API will not serve this key again: its replays are used up (429) or
+ *  its first render no longer matches (422). */
+async function keyRefused(response: Response): Promise<boolean> {
+  const code = response.status === 429 ? REPLAY_LIMIT_CODE : response.status === 422 ? MISMATCH_CODE : null;
+  if (!code) return false;
   try {
     const payload = (await response.clone().json()) as { code?: unknown };
-    return payload?.code === REPLAY_LIMIT_CODE;
+    return payload?.code === code;
   } catch {
     return false;
   }
@@ -190,7 +201,7 @@ export async function render(
       body,
       signal: AbortSignal.timeout(RENDER_TIMEOUT_MS),
     });
-    if (idempotencyKey && (await replayLimitReached(response))) {
+    if (idempotencyKey && (await keyRefused(response))) {
       idempotencyKey = undefined; // once more, without the key: a new document
       continue;
     }
